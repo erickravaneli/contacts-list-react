@@ -11,17 +11,17 @@ import {
   TableHeader,
   TableRow,
 } from './components/ui/table'
-import { useAppSelector } from './hooks'
+import { useAppDispatch, useAppSelector } from './hooks'
 import { Contact } from './models/contact'
 import { Button } from './components/ui/button'
-import { Pencil } from 'lucide-react'
+import { Pencil, Trash2 } from 'lucide-react'
 
 export default function App() {
   const contacts = useAppSelector(state => state.contacts.contacts)
-
   const [search, setSearch] = useState('')
   const [isDialogOpened, setIsDialogOpened] = useState(false)
-  const [contactIndex, setContactIndex] = useState<number | null>(null)
+  const [contactId, setContactId] = useState<string | null>(null)
+  const dispatch = useAppDispatch()
 
   const filteredContacts = search.length
     ? contacts.filter((contact: Contact) => {
@@ -33,13 +33,25 @@ export default function App() {
       })
     : contacts
 
-  function openDialog(index: number | null = null) {
-    if (index !== null) {
-      setContactIndex(index)
+  function openDialog(contactId: string | null = null) {
+    if (contactId) {
+      setContactId(contactId)
     } else {
-      setContactIndex(null)
+      setContactId(null)
     }
     setIsDialogOpened(true)
+  }
+
+  async function confirmRemoveContact(contactId: string) {
+    const confirm = window.confirm(
+      'Are you sure you want to remove this contact?'
+    )
+    if (confirm) {
+      await dispatch({
+        type: 'contact/removeContact',
+        payload: contactId,
+      })
+    }
   }
 
   return (
@@ -51,7 +63,7 @@ export default function App() {
           </section>
           <Button onClick={() => openDialog()}>Create</Button>
           <CreateContactDialog
-            contactIndex={contactIndex}
+            contactId={contactId}
             isDialogOpened={isDialogOpened}
             setIsDialogOpened={setIsDialogOpened}
           />
@@ -74,8 +86,8 @@ export default function App() {
           </TableHeader>
           <TableBody>
             {filteredContacts.length ? (
-              filteredContacts.map((contact, index) => (
-                <TableRow key={index} className="group">
+              filteredContacts.map(contact => (
+                <TableRow key={contact.id} className="group">
                   <TableCell className="text-left truncate">
                     {contact.name}
                   </TableCell>
@@ -84,8 +96,12 @@ export default function App() {
                   </TableCell>
                   <TableCell className="text-right flex justify-end gap-2">
                     <Pencil
-                      onClick={() => openDialog(index)}
-                      className="w-5 h-5 text-right text-gray-500 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer hover:text-blue-500"
+                      onClick={() => openDialog(contact.id)}
+                      className="w-5 h-5 text-gray-500 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer hover:text-blue-500"
+                    />
+                    <Trash2
+                      onClick={() => confirmRemoveContact(contact.id)}
+                      className="w-5 h-5 mr-2 text-gray-500 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer hover:text-red-500"
                     />
                   </TableCell>
                 </TableRow>

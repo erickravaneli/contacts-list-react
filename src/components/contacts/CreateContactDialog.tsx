@@ -13,30 +13,39 @@ import { Contact } from '@/models/contact'
 import { useEffect, useState } from 'react'
 
 type createContactDialogProps = {
-  contactIndex: number | null
+  contactId: string | null
   isDialogOpened: boolean
   setIsDialogOpened: (isDialogOpened: boolean) => void
 }
 
 export default function CreateContactDialog({
-  contactIndex,
+  contactId,
   isDialogOpened,
   setIsDialogOpened,
 }: createContactDialogProps) {
   const contacts = useAppSelector(state => state.contacts.contacts)
   const dispatch = useAppDispatch()
-  const [contact, setContact] = useState<Contact>({ name: '', email: '' })
-  const isUpdateContact = Boolean(contactIndex !== null)
+  const [contact, setContact] = useState<Contact>({
+    id: getRandomId(),
+    name: '',
+    email: '',
+  })
+  const isUpdateContact = Boolean(contactId !== null)
 
   useEffect(() => {
     if (isDialogOpened) {
-      if (contactIndex === null) {
-        setContact({ name: '', email: '' })
+      if (contactId) {
+        const foundContact = contacts.find(contact => contact.id === contactId)
+        if (foundContact) setContact(foundContact)
       } else {
-        setContact(contacts[contactIndex])
+        setContact({ id: getRandomId(), name: '', email: '' })
       }
     }
   }, [isDialogOpened])
+
+  function getRandomId() {
+    return Math.random().toString(36).substring(2, 7)
+  }
 
   function updateContactInput(event: React.ChangeEvent<HTMLInputElement>) {
     setContact({
@@ -51,13 +60,13 @@ export default function CreateContactDialog({
     return true
   }
 
-  function submit({ name, email }: Contact) {
+  function submit({ id, name, email }: Contact) {
     if (isValidContact()) {
       if (isUpdateContact) {
         dispatch({
           type: 'contact/updateContact',
           payload: {
-            index: contactIndex,
+            id,
             name,
             email,
           },
@@ -66,6 +75,7 @@ export default function CreateContactDialog({
         dispatch({
           type: 'contact/createContact',
           payload: {
+            id: getRandomId(),
             name,
             email,
           },
@@ -76,8 +86,8 @@ export default function CreateContactDialog({
   }
 
   return (
-    <Dialog open={isDialogOpened}>
-      <DialogContent onEscapeKeyDown={() => setIsDialogOpened(false)}>
+    <Dialog open={isDialogOpened} onOpenChange={setIsDialogOpened}>
+      <DialogContent>
         <DialogHeader>
           <DialogTitle>
             {isUpdateContact ? 'Update Contact' : 'Create Contact'}
