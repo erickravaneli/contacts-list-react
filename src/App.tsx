@@ -48,11 +48,8 @@ export default function App() {
         <div className="flex items-center justify-between">
           <section className="text-left">
             <h1 className="text-2xl font-bold">Contacts</h1>
-            <p className="text-sm text-muted-foreground">
-              A list of contacts with their email addresses.
-            </p>
           </section>
-          <Button onClick={() => openDialog()}>Create Contact</Button>
+          <Button onClick={() => openDialog()}>Create</Button>
           <CreateContactDialog
             contactIndex={contactIndex}
             isDialogOpened={isDialogOpened}
@@ -61,7 +58,7 @@ export default function App() {
         </div>
         <Input
           type="text"
-          placeholder="Search Contacts"
+          placeholder="Search..."
           value={search}
           onChange={event => setSearch(event.target.value)}
         ></Input>

@@ -79,10 +79,10 @@ export default function CreateContactDialog({
     <Dialog open={isDialogOpened}>
       <DialogContent onEscapeKeyDown={() => setIsDialogOpened(false)}>
         <DialogHeader>
-          <DialogTitle>Create Contact</DialogTitle>
-          <DialogDescription>
-            Create a new contact in the list
-          </DialogDescription>
+          <DialogTitle>
+            {isUpdateContact ? 'Update Contact' : 'Create Contact'}
+          </DialogTitle>
+          <DialogDescription></DialogDescription>
         </DialogHeader>
 
         <Input
