@@ -1,3 +1,3 @@
 # Contacts list with React
 
-Project create to study React
+Project created in order to study React
